@@ -104,9 +104,10 @@ export default class PDFAnnotatorPlugin extends Plugin {
 				file.path,
 			);
 		} else {
-			await (
-				this.app.vault.adapter as FileSystemAdapterWithInternalApi
-			).open(file.path);
+			const encodedPath = encodeURIComponent(file.path);
+			window.open(
+				`shortcuts://run-shortcut?name=obsidian-to-pdfexpert&input=text&text=${encodedPath}`,
+			);
 		}
 	}
 }
