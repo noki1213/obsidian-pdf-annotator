@@ -105,29 +105,13 @@ export default class PDFAnnotatorPlugin extends Plugin {
 		});
 	}
 
-	getAbsolutePath(file: TFile): string {
-		const adapter = this.app.vault.adapter;
-		if (adapter instanceof FileSystemAdapter) {
-			return adapter.getBasePath() + "/" + file.path;
-		}
-		// モバイル（iOS/Android）では FileSystemAdapter ではなく内部 API で basePath を取る
-		// @ts-ignore
-		const basePath: string | undefined = adapter.basePath;
-		if (basePath) {
-			return basePath + "/" + file.path;
-		}
-		// basePath が取れない場合はボルト相対パスをそのまま返す（フォールバック）
-		return file.path;
-	}
-
 	async openExternal(file: TFile) {
 		if (Platform.isDesktopApp) {
 			await (this.app as AppWithDesktopInternalApi).openWithDefaultApp(
 				file.path,
 			);
 		} else {
-			const absolutePath = this.getAbsolutePath(file);
-			const encodedPath = encodeURIComponent(absolutePath);
+			const encodedPath = encodeURIComponent(file.path);
 			const url = `shortcuts://run-shortcut?name=obsidian-to-pdfexpert&input=text&text=${encodedPath}`;
 			if (Platform.isMobileApp && Platform.isIosApp) {
 				window.location.href = url;

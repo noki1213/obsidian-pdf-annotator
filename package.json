@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-pdf-annotator",
-	"version": "1.0.6",
+	"version": "1.0.7",
 	"description": "Open PDFs in an external annotation app from Obsidian",
 	"main": "main.js",
 	"scripts": {
