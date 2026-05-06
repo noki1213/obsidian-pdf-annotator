@@ -111,12 +111,14 @@ export default class PDFAnnotatorPlugin extends Plugin {
 		} else {
 			const encodedPath = encodeURIComponent(file.path);
 			const url = `shortcuts://run-shortcut?name=obsidian-to-pdfexpert&input=text&text=${encodedPath}`;
-			// anchor click は WKWebView でも URL スキームを確実に発火させる
-			const a = document.createElement("a");
-			a.href = url;
-			document.body.appendChild(a);
-			a.click();
-			document.body.removeChild(a);
+			// Obsidian 内部の URL オープナー → Capacitor → iOS UIApplication.openURL の順で試みる
+			if ((this.app as any).openUrl) {
+				(this.app as any).openUrl(url);
+			} else if ((window as any).Capacitor?.Plugins?.App) {
+				(window as any).Capacitor.Plugins.App.openUrl({ url });
+			} else {
+				window.open(url);
+			}
 		}
 	}
 }
