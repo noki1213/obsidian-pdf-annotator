@@ -75,10 +75,15 @@ export default class PDFAnnotatorPlugin extends Plugin {
 			const toolbar = toolbars[i] as HTMLElement;
 			if (toolbar.querySelector(".pdf-expert-button")) continue;
 
+			// @ts-ignore
+			const file: TFile | null = view.file ?? null;
 			this.appendOpenButton(toolbar, async () => {
-				// PDF を直接開いている場合は Obsidian のコマンドで外部アプリに渡す
-				// @ts-ignore
-				this.app.commands.executeCommandById("open-with-default-app:open");
+				if (file) {
+					await this.openExternal(file);
+				} else {
+					// @ts-ignore
+					this.app.commands.executeCommandById("open-with-default-app:open");
+				}
 			});
 		}
 	}
@@ -105,7 +110,13 @@ export default class PDFAnnotatorPlugin extends Plugin {
 			);
 		} else {
 			const encodedPath = encodeURIComponent(file.path);
-			window.location.href = `shortcuts://run-shortcut?name=obsidian-to-pdfexpert&input=text&text=${encodedPath}`;
+			const url = `shortcuts://run-shortcut?name=obsidian-to-pdfexpert&input=text&text=${encodedPath}`;
+			// anchor click は WKWebView でも URL スキームを確実に発火させる
+			const a = document.createElement("a");
+			a.href = url;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
 		}
 	}
 }

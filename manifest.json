@@ -2,7 +2,7 @@
 	"id": "pdf-annotator",
 	"name": "PDF Annotator",
 	"author": "noki",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"minAppVersion": "1.0.0",
 	"description": "Open PDFs in an external annotation app (e.g. PDF Expert) directly from your vault.",
 	"isDesktopOnly": false
