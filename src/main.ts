@@ -94,7 +94,9 @@ export default class PDFAnnotatorPlugin extends Plugin {
 		button.setTooltip("Open in PDF Expert");
 		button.setClass("pdf-expert-button");
 		button.setClass("clickable-icon");
-		button.onClick(async () => {
+		button.onClick(async (evt) => {
+			evt.preventDefault();
+			evt.stopPropagation();
 			try {
 				await onClick();
 			} catch (e) {
@@ -104,20 +106,24 @@ export default class PDFAnnotatorPlugin extends Plugin {
 	}
 
 	async openExternal(file: TFile) {
-		if (Platform.isDesktop) {
+		if (Platform.isDesktopApp) {
 			await (this.app as AppWithDesktopInternalApi).openWithDefaultApp(
 				file.path,
 			);
 		} else {
 			const encodedPath = encodeURIComponent(file.path);
 			const url = `shortcuts://run-shortcut?name=obsidian-to-pdfexpert&input=text&text=${encodedPath}`;
-			// Obsidian 内部の URL オープナー → Capacitor → iOS UIApplication.openURL の順で試みる
-			if ((this.app as any).openUrl) {
-				(this.app as any).openUrl(url);
-			} else if ((window as any).Capacitor?.Plugins?.App) {
-				(window as any).Capacitor.Plugins.App.openUrl({ url });
+			if (Platform.isMobileApp && Platform.isIosApp) {
+				window.location.href = url;
 			} else {
-				window.open(url);
+				// Obsidian 内部の URL オープナー → Capacitor → Web API の順で試みる
+				if ((this.app as any).openUrl) {
+					(this.app as any).openUrl(url);
+				} else if ((window as any).Capacitor?.Plugins?.App) {
+					(window as any).Capacitor.Plugins.App.openUrl({ url });
+				} else {
+					window.open(url);
+				}
 			}
 		}
 	}
